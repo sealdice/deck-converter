@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io"
 	"log"
+	"maps"
 	"slices"
 	"strings"
 
@@ -122,41 +123,53 @@ func (j File) Convert(logger *log.Logger) tomldeck.File {
 		}
 	}
 
+	if j.export != nil && j.visible != nil {
+		maps.Copy(j.export, j.visible)
+		j.visible = j.export
+	}
+
 	if j.export == nil {
 		j.export = make(map[string]bool, len(j.decks))
 		for k := range j.decks {
-			j.export[k] = true
+			j.export[k] = !strings.HasPrefix(k, "_")
 		}
 	}
 	if j.visible == nil {
-		j.visible = make(map[string]bool, len(j.decks))
-		for k := range j.decks {
-			j.visible[k] = !strings.HasPrefix(k, "_")
-		}
+		j.visible = maps.Clone(j.export)
 	}
 
 	for k, v := range j.decks {
 		v = slices.Clone(v)
-		if !j.export[k] {
-			if strings.HasPrefix(k, "__") {
+
+		if j.visible[k] {
+			if !strings.HasPrefix(k, "_") {
 				t.Decks[k] = v
 			} else {
-				t.SplDecks[k] = tomldeck.SpecialDeck{Options: v}
+				t.SplDecks[k] = tomldeck.SpecialDeck{
+					Export:  true,
+					Visible: true,
+					Options: v,
+				}
 			}
 			continue
 		}
-		if !j.visible[k] {
-			if strings.HasPrefix(k, "_") {
+
+		if j.export[k] {
+			if strings.HasPrefix(k, "_") && !strings.HasPrefix(k, "__") {
 				t.Decks[k] = v
 			} else {
-				t.SplDecks[k] = tomldeck.SpecialDeck{Options: v, Export: true}
+				t.SplDecks[k] = tomldeck.SpecialDeck{
+					Export:  true,
+					Options: v,
+				}
 			}
 			continue
 		}
-		if strings.HasPrefix(k, "_") {
-			t.SplDecks[k] = tomldeck.SpecialDeck{Options: v, Export: true, Visible: true}
-		} else {
+
+		if strings.HasPrefix(k, "__") {
 			t.Decks[k] = v
+		} else {
+			t.SplDecks[k] = tomldeck.SpecialDeck{Options: v}
 		}
 	}
 
