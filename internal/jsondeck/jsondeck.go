@@ -16,29 +16,29 @@ import (
 )
 
 const (
-	jsonMetaTitle      = "_title"
-	jsonMetaAuthor     = "_author"
-	jsonMetaDate       = "_date"
-	jsonMetaUpdateDate = "_updateDate"
-	jsonMetaBrief      = "_brief"
-	jsonMetaVersion    = "_version"
-	jsonMetaLicense    = "_license"
-	jsonMetaUpdateUrls = "_updateUrls"
-	jsonMetaEtag       = "_etag"
-	jsonMetaKeys       = "_keys"
-	jsonMetaExport     = "_export"
-	jsonMetaExports    = "_exports"
-	jsonMetaSchema     = "$schema"
+	metaTitle      = "_title"
+	metaAuthor     = "_author"
+	metaDate       = "_date"
+	metaUpdateDate = "_updateDate"
+	metaBrief      = "_brief"
+	metaVersion    = "_version"
+	metaLicense    = "_license"
+	metaUpdateUrls = "_updateUrls"
+	metaEtag       = "_etag"
+	metaKeys       = "_keys"
+	metaExport     = "_export"
+	metaExports    = "_exports"
+	metaSchema     = "$schema"
 )
 
-type JsonFile struct {
+type File struct {
 	raw     map[string]any
 	decks   map[string][]string
 	visible map[string]bool
 	export  map[string]bool
 }
 
-func (j *JsonFile) Read(r io.Reader) (*JsonFile, error) {
+func (j *File) Read(r io.Reader) (*File, error) {
 	b, err := io.ReadAll(r)
 	if err != nil {
 		return j, fmt.Errorf("failed to read JSON data: %w", err)
@@ -56,7 +56,7 @@ func (j *JsonFile) Read(r io.Reader) (*JsonFile, error) {
 	return j, nil
 }
 
-func (j JsonFile) Convert(logger *log.Logger) tomldeck.TomlFile {
+func (j File) Convert(logger *log.Logger) tomldeck.TomlFile {
 	j.decks = make(map[string][]string)
 	t := tomldeck.TomlFile{
 		Decks:    make(map[string][]string),
@@ -64,7 +64,7 @@ func (j JsonFile) Convert(logger *log.Logger) tomldeck.TomlFile {
 	}
 
 	for k, v := range j.raw {
-		if k == jsonMetaSchema {
+		if k == metaSchema {
 			continue
 		}
 		s, ok := assertSliceStr(v)
@@ -73,9 +73,9 @@ func (j JsonFile) Convert(logger *log.Logger) tomldeck.TomlFile {
 			continue
 		}
 		switch k {
-		case jsonMetaTitle:
+		case metaTitle:
 			t.Meta.Title = strings.Join(s, " / ")
-		case jsonMetaAuthor:
+		case metaAuthor:
 			switch len(s) {
 			case 0: // no-op
 			case 1:
@@ -83,7 +83,7 @@ func (j JsonFile) Convert(logger *log.Logger) tomldeck.TomlFile {
 			default:
 				t.Meta.Authors = slices.Clone(s)
 			}
-		case jsonMetaDate:
+		case metaDate:
 			date := strings.Join(s, "/")
 			parsed := carbon.Parse(date)
 			if parsed.Error != nil {
@@ -91,7 +91,7 @@ func (j JsonFile) Convert(logger *log.Logger) tomldeck.TomlFile {
 			}
 			time := parsed.ToStdTime()
 			t.Meta.Date = &time
-		case jsonMetaUpdateDate:
+		case metaUpdateDate:
 			date := strings.Join(s, "/")
 			parsed := carbon.Parse(date)
 			if parsed.Error != nil {
@@ -99,21 +99,21 @@ func (j JsonFile) Convert(logger *log.Logger) tomldeck.TomlFile {
 			}
 			time := parsed.ToStdTime()
 			t.Meta.UpdateDate = &time
-		case jsonMetaBrief:
+		case metaBrief:
 			t.Meta.Desc = strings.Join(s, "\n")
-		case jsonMetaVersion:
+		case metaVersion:
 			t.Meta.Version = strings.Join(s, " / ")
-		case jsonMetaLicense:
+		case metaLicense:
 			t.Meta.License = strings.Join(s, " / ")
-		case jsonMetaUpdateUrls:
+		case metaUpdateUrls:
 			t.Meta.UpdateUrls = slices.Clone(s)
-		case jsonMetaEtag:
+		case metaEtag:
 			if len(s) > 0 {
 				t.Meta.Etag = s[0]
 			}
-		case jsonMetaKeys:
+		case metaKeys:
 			j.visible = internal.VisMap(s)
-		case jsonMetaExport, jsonMetaExports:
+		case metaExport, metaExports:
 			j.export = internal.VisMap(s)
 		default:
 			j.decks[k] = slices.Clone(s)

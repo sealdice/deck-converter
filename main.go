@@ -63,7 +63,7 @@ func main() {
 			}
 			defer o.Close()
 
-			json, err := (&jsondeck.JsonFile{}).Read(i)
+			json, err := (&jsondeck.File{}).Read(i)
 			if err != nil {
 				logger.Println(err)
 				return
