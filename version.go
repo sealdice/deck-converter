@@ -1,3 +1,3 @@
 package main
 
-var VersionStr = "0.1.0"
+var VersionStr = "1.0.0-rc0"

@@ -1,3 +1,13 @@
+## v1.0.0-rc0 (2024-03-14)
+
+### Feat
+
+- convert YAML deck to TOML deck
+
+### Refactor
+
+- **json-deck**: change type name from `JsonFile` to `File`
+
 ## v0.1.0 (2024-03-14)
 
 ### Feat
