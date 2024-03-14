@@ -1,7 +1,6 @@
 package main
 
 import (
-	"errors"
 	"fmt"
 	"log"
 	"os"
@@ -13,7 +12,9 @@ import (
 )
 
 func parseFlags() {
-	parser := flags.NewParser(&flag, flags.HelpFlag|flags.PassDoubleDash)
+	parser := flags.NewParser(&flag, flags.PassDoubleDash)
+
+	parser.Usage = "[OPTIONS]"
 	parser.FindOptionByShortName('o').Description =
 		"Output files. Must be empty or of same number as InputFiles.\n" +
 			"If empty, <input>.toml is used for each input file.\n" +
@@ -23,16 +24,16 @@ func parseFlags() {
 			"If specified, all output file will be in such directory.\n" +
 			"Else, each output file will be in the same directory as the input file."
 
+	_, _ = parser.AddGroup("Help Options", "", &helpFlags)
+
 	_, err := parser.Parse()
 
-	help := &flags.Error{}
-	if errors.As(err, &help) && help.Type == flags.ErrHelp {
-		fmt.Println(help.Message)
+	if helpFlags.Version {
+		fmt.Println(Version)
 		os.Exit(0)
 	}
-
-	if flag.Version {
-		fmt.Println(Version)
+	if helpFlags.Help {
+		parser.WriteHelp(os.Stdout)
 		os.Exit(0)
 	}
 

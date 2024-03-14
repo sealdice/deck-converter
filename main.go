@@ -8,8 +8,6 @@ import (
 )
 
 var flag = struct {
-	Version bool `short:"v" long:"version" description:"Show version"`
-
 	Output    []string `short:"o" long:"output" value-name:"OutputFile" description:"PLACEHOLDER"`
 	Parent    string   `short:"p" long:"parent" value-name:"ParentDir" description:"PLACEHOLDER"`
 	Overwrite bool     `short:"O" long:"overwrite" description:"Overwrite the output file if it already exists."`
@@ -19,11 +17,13 @@ var flag = struct {
 	} `positional-args:"yes" required:"yes"`
 }{}
 
+var helpFlags = struct {
+	Version bool `short:"v" long:"version" description:"Show version" group:"Help Options"`
+	Help    bool `short:"h" long:"help" description:"Show this help message" group:"Help Options"`
+}{}
+
 var (
-	VersionMain  = "0.0.0"
-	VersionPre   = "-dev"
-	VersionBuild = "+local"
-	Version      = semver.MustParse(VersionMain + VersionPre + VersionBuild)
+	Version = semver.MustParse(VersionStr)
 )
 
 func initialize() {
