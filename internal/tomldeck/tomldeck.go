@@ -8,7 +8,7 @@ import (
 	"github.com/pelletier/go-toml/v2"
 )
 
-type TomlMeta struct {
+type Meta struct {
 	Title      string     `toml:"title"`
 	Author     string     `toml:"author,omitempty"`
 	Authors    []string   `toml:"authors,omitempty"`
@@ -23,22 +23,22 @@ type TomlMeta struct {
 	FormatVersion int64 `toml:"format_version,omitempty"`
 }
 
-type TomlSpecialDeck struct {
+type SpecialDeck struct {
 	Export  bool     `toml:"export"`
 	Visible bool     `toml:"visible"`
 	Options []string `toml:"options"`
 }
 
-type TomlFile struct {
-	Meta     TomlMeta
+type File struct {
+	Meta     Meta
 	Decks    map[string][]string
-	SplDecks map[string]TomlSpecialDeck
+	SplDecks map[string]SpecialDeck
 }
 
-func (t TomlFile) Output(out io.Writer) error {
+func (t File) Output(out io.Writer) error {
 	enc := toml.NewEncoder(out)
 
-	err := enc.Encode(map[string]TomlMeta{"meta": t.Meta})
+	err := enc.Encode(map[string]Meta{"meta": t.Meta})
 	if err != nil {
 		return fmt.Errorf("failed to encode TOML data: %w", err)
 	}

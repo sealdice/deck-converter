@@ -38,7 +38,9 @@ type File struct {
 	export  map[string]bool
 }
 
-func (j *File) Read(r io.Reader) (*File, error) {
+var _ internal.DeckFile = &File{}
+
+func (j *File) Read(r io.Reader) (internal.DeckFile, error) {
 	b, err := io.ReadAll(r)
 	if err != nil {
 		return j, fmt.Errorf("failed to read JSON data: %w", err)
@@ -56,11 +58,11 @@ func (j *File) Read(r io.Reader) (*File, error) {
 	return j, nil
 }
 
-func (j File) Convert(logger *log.Logger) tomldeck.TomlFile {
+func (j File) Convert(logger *log.Logger) tomldeck.File {
 	j.decks = make(map[string][]string)
-	t := tomldeck.TomlFile{
+	t := tomldeck.File{
 		Decks:    make(map[string][]string),
-		SplDecks: make(map[string]tomldeck.TomlSpecialDeck),
+		SplDecks: make(map[string]tomldeck.SpecialDeck),
 	}
 
 	for k, v := range j.raw {
@@ -116,7 +118,7 @@ func (j File) Convert(logger *log.Logger) tomldeck.TomlFile {
 		case metaExport, metaExports:
 			j.export = internal.VisMap(s)
 		default:
-			j.decks[k] = slices.Clone(s)
+			j.decks[k] = s
 		}
 	}
 
@@ -134,11 +136,12 @@ func (j File) Convert(logger *log.Logger) tomldeck.TomlFile {
 	}
 
 	for k, v := range j.decks {
+		v = slices.Clone(v)
 		if !j.export[k] {
 			if strings.HasPrefix(k, "__") {
 				t.Decks[k] = v
 			} else {
-				t.SplDecks[k] = tomldeck.TomlSpecialDeck{Options: v}
+				t.SplDecks[k] = tomldeck.SpecialDeck{Options: v}
 			}
 			continue
 		}
@@ -146,12 +149,12 @@ func (j File) Convert(logger *log.Logger) tomldeck.TomlFile {
 			if strings.HasPrefix(k, "_") {
 				t.Decks[k] = v
 			} else {
-				t.SplDecks[k] = tomldeck.TomlSpecialDeck{Options: v, Export: true}
+				t.SplDecks[k] = tomldeck.SpecialDeck{Options: v, Export: true}
 			}
 			continue
 		}
 		if strings.HasPrefix(k, "_") {
-			t.SplDecks[k] = tomldeck.TomlSpecialDeck{Options: v, Export: true, Visible: true}
+			t.SplDecks[k] = tomldeck.SpecialDeck{Options: v, Export: true, Visible: true}
 		} else {
 			t.Decks[k] = v
 		}

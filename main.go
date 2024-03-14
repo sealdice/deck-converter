@@ -1,10 +1,14 @@
 package main
 
 import (
+	"path/filepath"
 	"sync"
 
 	"github.com/Masterminds/semver/v3"
+
+	"github.com/Xiangze-Li/deckconvert/internal"
 	"github.com/Xiangze-Li/deckconvert/internal/jsondeck"
+	"github.com/Xiangze-Li/deckconvert/internal/yamldeck"
 )
 
 var flag = struct {
@@ -63,12 +67,23 @@ func main() {
 			}
 			defer o.Close()
 
-			json, err := (&jsondeck.File{}).Read(i)
+			var deck internal.DeckFile
+			switch ext := filepath.Ext(in); ext {
+			case ".json", ".jsonc":
+				deck = &jsondeck.File{}
+			case ".yaml", ".yml":
+				deck = &yamldeck.File{}
+			default:
+				logger.Printf("unsupported file extension: %q", ext)
+				return
+			}
+
+			deck, err := deck.Read(i)
 			if err != nil {
 				logger.Println(err)
 				return
 			}
-			err = json.Convert(logger).Output(o)
+			err = deck.Convert(logger).Output(o)
 			if err != nil {
 				logger.Println(err)
 				return

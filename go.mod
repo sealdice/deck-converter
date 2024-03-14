@@ -8,6 +8,7 @@ require (
 	github.com/jessevdk/go-flags v1.5.0
 	github.com/pelletier/go-toml/v2 v2.1.1
 	github.com/tailscale/hujson v0.0.0-20221223112325-20486734a56a
+	gopkg.in/yaml.v3 v3.0.1
 )
 
 require (
