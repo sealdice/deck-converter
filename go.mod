@@ -1,4 +1,4 @@
-module github.com/Xiangze-Li/deckconvert
+module github.com/sealdice/deckconvert
 
 go 1.22.1
 

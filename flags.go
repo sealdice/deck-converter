@@ -7,8 +7,8 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/Xiangze-Li/deckconvert/internal"
 	"github.com/jessevdk/go-flags"
+	"github.com/sealdice/deckconvert/internal"
 )
 
 func parseFlags() {

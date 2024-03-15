@@ -10,8 +10,8 @@ import (
 
 	"gopkg.in/yaml.v3"
 
-	"github.com/Xiangze-Li/deckconvert/internal"
-	"github.com/Xiangze-Li/deckconvert/internal/tomldeck"
+	"github.com/sealdice/deckconvert/internal"
+	"github.com/sealdice/deckconvert/internal/tomldeck"
 )
 
 const (
