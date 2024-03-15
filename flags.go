@@ -8,7 +8,7 @@ import (
 	"strings"
 
 	"github.com/jessevdk/go-flags"
-	"github.com/sealdice/deckconvert/internal"
+	"github.com/sealdice/deck-converter/internal"
 )
 
 func parseFlags() {

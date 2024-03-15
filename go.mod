@@ -1,4 +1,4 @@
-module github.com/sealdice/deckconvert
+module github.com/sealdice/deck-converter
 
 go 1.22.1
 

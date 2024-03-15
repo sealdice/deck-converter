@@ -12,8 +12,8 @@ import (
 	"github.com/golang-module/carbon"
 	"github.com/tailscale/hujson"
 
-	"github.com/sealdice/deckconvert/internal"
-	"github.com/sealdice/deckconvert/internal/tomldeck"
+	"github.com/sealdice/deck-converter/internal"
+	"github.com/sealdice/deck-converter/internal/tomldeck"
 )
 
 const (

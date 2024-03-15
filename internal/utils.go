@@ -4,7 +4,7 @@ import (
 	"io"
 	"log"
 
-	"github.com/sealdice/deckconvert/internal/tomldeck"
+	"github.com/sealdice/deck-converter/internal/tomldeck"
 )
 
 func VisMap[K comparable](s []K) map[K]bool {

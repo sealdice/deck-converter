@@ -6,9 +6,9 @@ import (
 
 	"github.com/Masterminds/semver/v3"
 
-	"github.com/sealdice/deckconvert/internal"
-	"github.com/sealdice/deckconvert/internal/jsondeck"
-	"github.com/sealdice/deckconvert/internal/yamldeck"
+	"github.com/sealdice/deck-converter/internal"
+	"github.com/sealdice/deck-converter/internal/jsondeck"
+	"github.com/sealdice/deck-converter/internal/yamldeck"
 )
 
 var flag = struct {
