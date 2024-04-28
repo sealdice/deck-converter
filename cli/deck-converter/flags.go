@@ -8,8 +8,9 @@ import (
 	"strings"
 
 	"github.com/jessevdk/go-flags"
+
+	lib "github.com/sealdice/deck-converter"
 	"github.com/sealdice/deck-converter/internal"
-	"github.com/sealdice/deck-converter/version"
 )
 
 func parseFlags() {
@@ -30,7 +31,7 @@ func parseFlags() {
 	_, err := parser.Parse()
 
 	if helpFlags.Version {
-		fmt.Println(version.Version)
+		fmt.Println(lib.Version)
 		os.Exit(0)
 	}
 	if helpFlags.Help {
