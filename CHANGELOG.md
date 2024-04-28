@@ -10,7 +10,7 @@
 
 ### Fix
 
-- **json**: correct handling of _keys, _exports and _ prefixed decks
+- **json**: correct handling of \_keys, \_exports and \_ prefixed decks
 
 ## v1.0.0-rc0 (2024-03-14)
 
