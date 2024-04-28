@@ -4,11 +4,9 @@ import (
 	"path/filepath"
 	"sync"
 
-	"github.com/Masterminds/semver/v3"
-
-	"github.com/sealdice/deck-converter/internal"
-	"github.com/sealdice/deck-converter/internal/jsondeck"
-	"github.com/sealdice/deck-converter/internal/yamldeck"
+	"github.com/sealdice/deck-converter/jsondeck"
+	"github.com/sealdice/deck-converter/tomldeck"
+	"github.com/sealdice/deck-converter/yamldeck"
 )
 
 var flag = struct {
@@ -25,10 +23,6 @@ var helpFlags = struct {
 	Version bool `short:"v" long:"version" description:"Show version" group:"Help Options"`
 	Help    bool `short:"h" long:"help" description:"Show this help message" group:"Help Options"`
 }{}
-
-var (
-	Version = semver.MustParse(VersionStr)
-)
 
 func initialize() {
 	initLogger()
@@ -67,7 +61,7 @@ func main() {
 			}
 			defer o.Close()
 
-			var deck internal.DeckFile
+			var deck tomldeck.DeckFile
 			switch ext := filepath.Ext(in); ext {
 			case ".json", ".jsonc":
 				deck = &jsondeck.File{}

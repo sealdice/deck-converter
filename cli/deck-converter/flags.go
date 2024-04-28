@@ -9,6 +9,7 @@ import (
 
 	"github.com/jessevdk/go-flags"
 	"github.com/sealdice/deck-converter/internal"
+	"github.com/sealdice/deck-converter/version"
 )
 
 func parseFlags() {
@@ -29,7 +30,7 @@ func parseFlags() {
 	_, err := parser.Parse()
 
 	if helpFlags.Version {
-		fmt.Println(Version)
+		fmt.Println(version.Version)
 		os.Exit(0)
 	}
 	if helpFlags.Help {

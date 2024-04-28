@@ -1,3 +1,4 @@
+// package jsondeck implements tomldeck.DeckFile for JSON deck files
 package jsondeck
 
 import (
@@ -13,7 +14,7 @@ import (
 	"github.com/tailscale/hujson"
 
 	"github.com/sealdice/deck-converter/internal"
-	"github.com/sealdice/deck-converter/internal/tomldeck"
+	"github.com/sealdice/deck-converter/tomldeck"
 )
 
 const (
@@ -32,6 +33,7 @@ const (
 	metaSchema     = "$schema"
 )
 
+// File is a JSON deck file, implements tomldeck.DeckFile
 type File struct {
 	raw     map[string]any
 	decks   map[string][]string
@@ -39,9 +41,10 @@ type File struct {
 	export  map[string]bool
 }
 
-var _ internal.DeckFile = &File{}
+var _ tomldeck.DeckFile = (*File)(nil)
 
-func (j *File) Read(r io.Reader) (internal.DeckFile, error) {
+// Read reads JSON data from r, updates and returns the receiver
+func (j *File) Read(r io.Reader) (tomldeck.DeckFile, error) {
 	b, err := io.ReadAll(r)
 	if err != nil {
 		return j, fmt.Errorf("failed to read JSON data: %w", err)
@@ -59,6 +62,9 @@ func (j *File) Read(r io.Reader) (internal.DeckFile, error) {
 	return j, nil
 }
 
+// Convert converts the receiver to a `tomldeck.File`
+//
+//   - `logger` is used to log errors if not nil
 func (j File) Convert(logger *log.Logger) tomldeck.File {
 	j.decks = make(map[string][]string)
 	t := tomldeck.File{
@@ -72,7 +78,9 @@ func (j File) Convert(logger *log.Logger) tomldeck.File {
 		}
 		s, ok := assertSliceStr(v)
 		if !ok {
-			logger.Printf("JSON field %q has invalid type", k)
+			if logger != nil {
+				logger.Printf("JSON field %q has invalid type", k)
+			}
 			continue
 		}
 		switch k {
@@ -89,7 +97,7 @@ func (j File) Convert(logger *log.Logger) tomldeck.File {
 		case metaDate:
 			date := strings.Join(s, "/")
 			parsed := carbon.Parse(date)
-			if parsed.Error != nil {
+			if parsed.Error != nil && logger != nil {
 				logger.Printf("JSON field %q is not a valid datetime: %v", k, parsed.Error)
 			}
 			time := parsed.ToStdTime()
@@ -97,7 +105,7 @@ func (j File) Convert(logger *log.Logger) tomldeck.File {
 		case metaUpdateDate:
 			date := strings.Join(s, "/")
 			parsed := carbon.Parse(date)
-			if parsed.Error != nil {
+			if parsed.Error != nil && logger != nil {
 				logger.Printf("JSON meta field %q is not a valid datetime: %v", k, parsed.Error)
 			}
 			time := parsed.ToStdTime()

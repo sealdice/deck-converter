@@ -1,3 +1,4 @@
+// package yamldeck implements tomldeck.DeckFile for YAML deck files
 package yamldeck
 
 import (
@@ -10,8 +11,7 @@ import (
 
 	"gopkg.in/yaml.v3"
 
-	"github.com/sealdice/deck-converter/internal"
-	"github.com/sealdice/deck-converter/internal/tomldeck"
+	"github.com/sealdice/deck-converter/tomldeck"
 )
 
 const (
@@ -26,31 +26,36 @@ const (
 	metaDefault = "default"
 )
 
+// File is a YAML deck file, implements tomldeck.DeckFile
 type File struct {
 	raw    map[string]any
 	decks  map[string][]string
 	export map[string]bool
 }
 
-var _ internal.DeckFile = &File{}
+var _ tomldeck.DeckFile = (*File)(nil)
 
-func (y *File) Read(r io.Reader) (internal.DeckFile, error) {
-	err := yaml.NewDecoder(r).Decode(&(y.raw))
+// Read reads YAML data from r, updates and returns the receiver
+func (file *File) Read(r io.Reader) (tomldeck.DeckFile, error) {
+	err := yaml.NewDecoder(r).Decode(&(file.raw))
 	if err != nil {
-		return y, fmt.Errorf("failed to unmarshal YAML data: %w", err)
+		return file, fmt.Errorf("failed to unmarshal YAML data: %w", err)
 	}
 
-	return y, nil
+	return file, nil
 }
 
-func (y File) Convert(logger *log.Logger) tomldeck.File {
-	y.decks = make(map[string][]string)
+// Convert converts the receiver to a `tomldeck.File`
+//
+//   - `logger` is used to log errors if not nil
+func (file File) Convert(logger *log.Logger) tomldeck.File {
+	file.decks = make(map[string][]string)
 	t := tomldeck.File{
 		Decks:    make(map[string][]string),
 		SplDecks: make(map[string]tomldeck.SpecialDeck),
 	}
 
-	for k, v := range y.raw {
+	for k, v := range file.raw {
 		switch k {
 		case metaTitle:
 			t.Meta.Title = assertString(k, v, logger)
@@ -67,9 +72,11 @@ func (y File) Convert(logger *log.Logger) tomldeck.File {
 		case metaInfo, metaInclude:
 			// no-op
 		case metaDefault:
-			cmdAny, cmdExist := y.raw[metaCommand]
+			cmdAny, cmdExist := file.raw[metaCommand]
 			if !cmdExist {
-				logger.Printf("YAML field %q is defined but %q is missing", metaDefault, metaCommand)
+				if logger != nil {
+					logger.Printf("YAML field %q is defined but %q is missing", metaDefault, metaCommand)
+				}
 				continue
 			}
 			cmdName := assertString(metaCommand, cmdAny, logger)
@@ -80,32 +87,32 @@ func (y File) Convert(logger *log.Logger) tomldeck.File {
 			if len(cmdDeck) == 0 {
 				continue
 			}
-			y.decks[cmdName] = cmdDeck
-			y.export = map[string]bool{cmdName: true}
+			file.decks[cmdName] = cmdDeck
+			file.export = map[string]bool{cmdName: true}
 		default:
 			vv := assertSliceStr(k, v, logger)
 			if len(vv) == 0 {
 				continue
 			}
-			y.decks[k] = vv
+			file.decks[k] = vv
 		}
 	}
 
-	if y.export == nil {
-		y.export = make(map[string]bool, len(y.decks))
-		for k := range y.decks {
-			y.export[k] = true
+	if file.export == nil {
+		file.export = make(map[string]bool, len(file.decks))
+		for k := range file.decks {
+			file.export[k] = true
 		}
 	}
 
-	for k, v := range y.decks {
+	for k, v := range file.decks {
 		v = slices.Clone(v)
-		if y.export[k] == !strings.HasPrefix(k, "__") {
+		if file.export[k] == !strings.HasPrefix(k, "__") {
 			t.Decks[k] = v
 		} else {
 			t.SplDecks[k] = tomldeck.SpecialDeck{
-				Export:  y.export[k],
-				Visible: y.export[k],
+				Export:  file.export[k],
+				Visible: file.export[k],
 				Options: v,
 			}
 		}
