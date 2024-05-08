@@ -6,7 +6,6 @@
 ![GitHub Release](https://img.shields.io/github/v/release/sealdice/deck-converter)
 ![GitHub Tag](https://img.shields.io/github/v/tag/sealdice/deck-converter)
 
-
 A library / CLI tool to convert deck of other formats to SealDice TOML format.
 
 ## Install as a CLI tool
