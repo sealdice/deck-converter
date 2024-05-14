@@ -9,7 +9,8 @@
       "type": "go",
       "request": "launch",
       "mode": "auto",
-      "program": "${workspaceFolder}",
+      "program": "${workspaceFolder}/cli/deck-converter",
+      "cwd": "${workspaceFolder}",
       "args": ["-O", "${input:input_file}"]
     }
   ],
